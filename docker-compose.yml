@@ -1,0 +1,45 @@
+# 
+# ---
+# Docker compose file for ranger stkac
+#
+# Nigel Jones - jonesn@uk.ibm.com
+# ---
+
+version: '2'
+services:
+  ranger-admin:
+    build: ranger-admin
+    ports: 
+      - 6080:6080
+      - 6182:6182
+      - 6083:6083
+      - 6183:6183
+      - 8886:8886
+    depends_on:
+      - postgresdb
+    links:
+      - postgresdb
+    ulimits:
+      nofile:
+         soft: 4096
+         hard: 4096
+    #command: ["/bin/sh","-c","/opt/ranger-1.0.0-SNAPSHOT-admin/ranger-docker-start.sh"]
+  postgresdb:
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Admin99
+      - POSTGRES_HOST_AUTH_METHOD=md5
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
+    build: postgresdb
+    command: ["postgres","-c","listen_addresses=*"]
+    ports:
+            - "15438:5438"
+    volumes:
+      - db:/var/lib/postgresql/data
+volumes:
+  db:
+    driver: local
