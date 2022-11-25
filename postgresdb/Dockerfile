@@ -9,8 +9,13 @@ ENV POSTGRES_HOST_AUTH_METHOD=md5
 # Allow connections from anywhere.
 RUN ls -latr /var/lib/postgresql
 #RUN sed -i -e"s/^#listen_addresses =.*$/listen_addresses = '*'/" /var/lib/postgresql/data/postgresql.conf
-RUN echo "host    all    all    0.0.0.0/0    md5" > /var/lib/postgresql/data/pg_hba.conf
-RUN echo "password_encryption=md5" /var/lib/postgresql/data/postgreslq.conf
+RUN echo "local   replication     all                                     md5" >  /var/lib/postgresql/data/pg_hba.conf
+RUN echo "host   replication     all                                     md5" >>  /var/lib/postgresql/data/pg_hba.conf
+RUN echo "host   all     all                                     md5" >>  /var/lib/postgresql/data/pg_hba.conf
+
+
+#RUN echo "host    all    all    0.0.0.0/0    md5" > /var/lib/postgresql/data/pg_hba.conf
+RUN echo "password_encryption=md5" > /var/lib/postgresql/data/postgreslq.conf
 #COPY ./files/pg_hba.conf /var/lib/postgresql/data/pg_hba.conf
 #COPY ./files/postgresql.conf /var/lib/postgresql/data/postgresql.conf
 

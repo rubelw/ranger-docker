@@ -11,7 +11,7 @@
 # ---
 
 # Let's use UBUNTU
-FROM            ubuntu:18.04
+FROM            ubuntu:20.04
 
 # any problems let me know
 MAINTAINER      Nigel Jones <nigel.l.jones+gh@gmail.com>
@@ -22,8 +22,19 @@ ENV		 rootpw			 admin99
 ENV		 build 			 ranger-3.0.0-SNAPSHOT
 ENV		 dadir			 /opt/ranger-3.0.0-SNAPSHOT-admin
 
+
+
+
 # Let's start with some core packages we need
-RUN apt-get update && apt-get install -y wget python3 python3-pip libpostgresql-jdbc-java libpostgresql-jdbc-java-doc python openjdk-8-jdk maven git iputils-ping net-tools vim lsof apt-utils build-essential lsb-core lsb-release
+RUN apt-get update
+
+## for apt to be noninteractive
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata
+
+
+
+
+RUN apt-get install -y wget python3 python3-pip libpostgresql-jdbc-java libpostgresql-jdbc-java-doc python openjdk-8-jdk maven git iputils-ping net-tools vim lsof apt-utils build-essential lsb-core lsb-release
 
 # It turns out mvn 3.5.3 (current on ubuntu distro) nor 3.5.2 work with ranger. 3.5.0 or 3.5.4 only
 WORKDIR /root

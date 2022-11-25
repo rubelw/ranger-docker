@@ -8,9 +8,6 @@ docker-compose build --no-cache
 docker-compose up
 ```
 
-# Current issues
-
-Ranger seems to want to not use md5 for passwords
 
 ```bash
 ranger-docker-ranger-admin-1  | 2022-11-22 12:37:27,094  [JISQL] /usr/lib/jvm/java-8-openjdk-amd64/bin/java  -cp /usr/share/java/postgresql.jar:/opt/ranger-3.0.0-SNAPSHOT-admin/jisql/lib/* org.apache.util.sql.Jisql -driver postgresql -cstring jdbc:postgresql://postgresdb/postgres -u postgres -p '********' -noheader -trim -c \; -query "SELECT 1;"
@@ -18,6 +15,12 @@ ranger-docker-ranger-admin-1  | SQLException : SQL state: 08004 org.postgresql.u
 
 ```
 
+# Login
+
+username: admin
+password: Admin999
+
+url: http://localhost:6080
 
 ## THIS PROJECT IS NOW DEPRECATED. 
 
