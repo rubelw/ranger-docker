@@ -22,6 +22,28 @@ password: Admin999
 
 url: http://localhost:6080
 
+
+
+# Push images to github
+
+```bash
+docker tag ranger-docker-ranger-admin:latest rubelw/ranger-docker-ranger-admin:latest
+docker push rubelw/ranger-docker-ranger-admin:latest
+
+```
+
+# Helm deploy
+
+```bash
+minikube start
+helm install ranger --values ranger/values.yaml --generate-name
+minikube ssh docker pull rubelw/ranger-docker-ranger-admin:latest
+
+kubectl port-forward  svc/ranger-1669599907-ranger-service  6080:6080
+```
+Goto browser: http://127.0.0.1:6080
+
+
 ## THIS PROJECT IS NOW DEPRECATED. 
 
 ### Please go to http://github.com/odpi/egeria to read about Egeria, where you will also ongoing work around deployment of a 

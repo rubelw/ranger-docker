@@ -11,7 +11,7 @@
 # ---
 
 # Let's use UBUNTU
-FROM            ubuntu:20.04
+FROM ubuntu:20.04 as builder
 
 # any problems let me know
 MAINTAINER      Nigel Jones <nigel.l.jones+gh@gmail.com>
@@ -67,6 +67,40 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize
 RUN tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.6.1.tar.gz
 
 
+FROM ubuntu:20.04
+
+# Will use these more in future
+
+ENV		 rootpw			 admin99
+ENV		 build 			 ranger-3.0.0-SNAPSHOT
+ENV		 dadir			 /opt/ranger-3.0.0-SNAPSHOT-admin
+
+
+
+
+# Let's start with some core packages we need
+RUN apt-get update
+
+## for apt to be noninteractive
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata
+
+
+
+
+RUN apt-get install -y wget python3 python3-pip libpostgresql-jdbc-java libpostgresql-jdbc-java-doc python openjdk-8-jdk maven git iputils-ping net-tools vim lsof apt-utils build-essential lsb-core lsb-release
+
+# We have now built the latest ranger from source - let's unpack and setup the admin server & UI
+
+# Add dockerize wait tool - this allows VMs to wait for network ports to be available.
+# Only needed if running in a docker-compose type environment, not for single image
+# this is recommended on docker.com
+RUN wget https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz
+RUN tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.6.1.tar.gz
+RUN rm dockerize-linux-amd64-v0.6.1.tar.gz
+
+WORKDIR /opt
+COPY --from=builder /root/ranger/target/ranger-3.0.0-SNAPSHOT-admin.tar.gz /tmp
+
 
 # After a build, the ranger directory looks like this - we need to chose the zips we're interested in deploying
 # in this docker image
@@ -96,7 +130,9 @@ RUN tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.6.1.tar.gz
 # Just going with the admin server here - v1 of the docker image used to copy in, so here we will just link
 
 WORKDIR /opt
-RUN gunzip -c /root/ranger/target/ranger-3.0.0-SNAPSHOT-admin.tar.gz | tar -xvf -
+RUN gunzip -c /tmp/ranger-3.0.0-SNAPSHOT-admin.tar.gz | tar -xvf -
+RUN rm /tmp/ranger-3.0.0-SNAPSHOT-admin.tar.gz
+
 
 # Get the mysql connector ready
 
@@ -180,6 +216,11 @@ RUN echo "while [ true ]" >> /opt/ranger-3.0.0-SNAPSHOT-admin/ranger-docker-star
 RUN echo "do"  >> /opt/ranger-3.0.0-SNAPSHOT-admin/ranger-docker-start.sh
 RUN echo "  sleep 10000"  >> /opt/ranger-3.0.0-SNAPSHOT-admin/ranger-docker-start.sh
 RUN echo "done"  >> /opt/ranger-3.0.0-SNAPSHOT-admin/ranger-docker-start.sh
+
+# Remove ranger build
+RUN rm -rf /root/ranger
+RUN rm -rf /root/apache-maven-3.8.6-bin.tar.gz
+
 
 # Hopefully running that script will finish the configuration (which needs mysql)
 ENTRYPOINT ["/bin/sh","-c","/opt/ranger-3.0.0-SNAPSHOT-admin/ranger-docker-start.sh"]
