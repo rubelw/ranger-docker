@@ -19,10 +19,15 @@ services:
       - postgresdb
     links:
       - postgresdb
+    networks:
+      - trino-ranger-demo
     ulimits:
       nofile:
          soft: 4096
          hard: 4096
+    volumes:
+      - ./ranger-admin/install.properties:/root/install.properties
+      - ./ranger-admin/docker-entrypoint.sh:/root/docker-entrypoint.sh
     #command: ["/bin/sh","-c","/opt/ranger-1.0.0-SNAPSHOT-admin/ranger-docker-start.sh"]
   postgresdb:
     restart: always
@@ -35,11 +40,28 @@ services:
         max-size: 10m
         max-file: "3"
     build: postgresdb
+    networks:
+      - trino-ranger-demo
     command: ["postgres","-c","listen_addresses=*"]
     ports:
             - "15438:5438"
     volumes:
-      - db:/var/lib/postgresql/data
+      - ranger-pg-data:/var/lib/postgresql/data
+  trino:
+    image: trinodb/trino:latest
+    hostname: my-localhost-trino
+    user: root
+    container_name: my-localhost-trino
+    entrypoint: /root/docker-entrypoint.sh
+    networks:
+      - trino-ranger-demo
+    volumes:
+      - ./trino/install.properties:/root/install.properties
+      - ./trino/docker-entrypoint.sh:/root/docker-entrypoint.sh
+    ports:
+      - 8080:8080
+networks:
+  trino-ranger-demo:
+    driver: bridge
 volumes:
-  db:
-    driver: local
+  ranger-pg-data:
